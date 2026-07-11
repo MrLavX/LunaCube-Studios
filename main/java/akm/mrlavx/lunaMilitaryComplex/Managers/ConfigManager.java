@@ -13,8 +13,8 @@ import java.util.List;
 
 public class ConfigManager {
     private final LunaMilitaryComplex plugin;
-    private FileConfiguration messages, items, mobs, boss, shield, strike;
-    private File messagesFile, itemsFile, mobsFile, bossFile, shieldFile, strikeFile;
+    private FileConfiguration messages, items, mobs;
+    private File messagesFile, itemsFile, mobsFile;
 
     public ConfigManager(LunaMilitaryComplex plugin) { this.plugin = plugin; reload(); }
 
@@ -22,18 +22,12 @@ public class ConfigManager {
         messagesFile = new File(plugin.getDataFolder(), "messages.yml");
         itemsFile = new File(plugin.getDataFolder(), "items.yml");
         mobsFile = new File(plugin.getDataFolder(), "mobs.yml");
-        bossFile = new File(plugin.getDataFolder(), "boss.yml");
-        shieldFile = new File(plugin.getDataFolder(), "shield.yml");
-        strikeFile = new File(plugin.getDataFolder(), "strike.yml");
-        for (File f : new File[]{messagesFile, itemsFile, mobsFile, bossFile, shieldFile, strikeFile}) {
+        for (File f : new File[]{messagesFile, itemsFile, mobsFile}) {
             if (!f.exists()) try { f.createNewFile(); } catch (Exception e) { e.printStackTrace(); }
         }
         messages = YamlConfiguration.loadConfiguration(messagesFile);
         items = YamlConfiguration.loadConfiguration(itemsFile);
         mobs = YamlConfiguration.loadConfiguration(mobsFile);
-        boss = YamlConfiguration.loadConfiguration(bossFile);
-        shield = YamlConfiguration.loadConfiguration(shieldFile);
-        strike = YamlConfiguration.loadConfiguration(strikeFile);
     }
 
     public String getMessage(String path) {
@@ -74,9 +68,6 @@ public class ConfigManager {
 
     public FileConfiguration getItems() { return items; }
     public FileConfiguration getMobs() { return mobs; }
-    public FileConfiguration getBoss() { return boss; }
-    public FileConfiguration getShield() { return shield; }
-    public FileConfiguration getStrike() { return strike; }
     public FileConfiguration getMessages() { return messages; }
 
     public String getDisplayType(String section) {

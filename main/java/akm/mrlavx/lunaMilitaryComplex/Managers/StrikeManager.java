@@ -25,8 +25,8 @@ public class StrikeManager {
     }
 
     public void reload() {
-        maxStrikes = plugin.getConfigManager().getStrike().getInt("settings.max-strikes", 3);
-        cooldownMinutes = plugin.getConfigManager().getStrike().getInt("settings.cooldown-minutes", 60);
+        maxStrikes = plugin.getConfig().getInt("strike.settings.max-strikes", 3);
+        cooldownMinutes = plugin.getConfig().getInt("strike.settings.cooldown-minutes", 60);
     }
 
     public boolean canLaunch(Player player) {
@@ -55,7 +55,7 @@ public class StrikeManager {
     }
 
     private void startStrikeSequence(Player player, Location target) {
-        int warningTime = plugin.getConfigManager().getStrike().getInt("settings.warning-seconds", 10);
+        int warningTime = plugin.getConfig().getInt("strike.settings.warning-seconds", 10);
         broadcast("strike.warning", "%target%", target.getBlockX() + ", " + target.getBlockY() + ", " + target.getBlockZ());
         plugin.getEffectManager().playStrikeWarning(target);
         new BukkitRunnable() {

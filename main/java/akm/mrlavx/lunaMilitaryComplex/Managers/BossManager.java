@@ -30,7 +30,7 @@ public class BossManager {
     }
 
     public void reload() {
-        bossData = new BossData(plugin.getConfigManager().getBoss().getConfigurationSection("boss"));
+        bossData = new BossData(plugin.getConfig().getConfigurationSection("boss"));
     }
 
     public void spawnBoss(Location location) {

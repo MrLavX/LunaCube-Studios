@@ -26,6 +26,41 @@ capture:
   pause-on-leave: true
   reset-on-leave: false
 
+# Босс
+boss:
+  name: "&4&lКомандир комплекса"
+  entity: ZOMBIE
+  health: 500
+  armor: 20
+  damage: 15
+  stages: 3
+  spawn-effect: "EXPLOSION"
+  death-effect: "LIGHTNING"
+  bossbar:
+    title: "&4&l%name% &7| &c%health%/%max-health% ❤"
+    color: RED
+    style: SOLID
+
+# Модуль защиты
+shield:
+  settings:
+    energy-drain: 1.0
+    recharge-rate: 2.0
+    default-max-energy: 1000
+    default-radius: 50
+
+# Удар
+strike:
+  settings:
+    max-strikes: 3
+    cooldown-minutes: 60
+    warning-seconds: 10
+    waves: 3
+    explosions-per-wave: 5
+    explosion-power: 4.0
+    damage-players: true
+    damage-blocks: true
+
 # Отображение (actionbar / bossbar / message / none)
 # Каждый тип можно настроить отдельно!
 display:

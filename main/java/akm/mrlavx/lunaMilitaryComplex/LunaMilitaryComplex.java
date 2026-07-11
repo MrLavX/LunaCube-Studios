@@ -82,7 +82,7 @@ public final class LunaMilitaryComplex extends JavaPlugin {
 
     private void saveDefaultConfigs() {
         saveDefaultConfig();
-        for (String f : new String[]{"messages.yml","items.yml","zones.yml","mobs.yml","boss.yml","shield.yml","strike.yml","data.yml","logs.yml"}) {
+        for (String f : new String[]{"messages.yml","items.yml","zones.yml","mobs.yml","data.yml","logs.yml"}) {
             saveResourceSafe(f);
         }
         for (String m : new String[]{"Menu/confirm_menu.yml","Menu/terminal_menu.yml","Menu/shield-of-defense.yml"}) {

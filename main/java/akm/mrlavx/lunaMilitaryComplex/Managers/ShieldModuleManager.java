@@ -31,8 +31,8 @@ public class ShieldModuleManager {
         file = new File(plugin.getDataFolder(), "shield_modules.yml");
         if (!file.exists()) { try { file.createNewFile(); } catch (IOException e) { e.printStackTrace(); } }
         config = YamlConfiguration.loadConfiguration(file);
-        energyDrainPerSecond = plugin.getConfigManager().getShield().getDouble("settings.energy-drain", 1.0);
-        rechargeRate = plugin.getConfigManager().getShield().getDouble("settings.recharge-rate", 2.0);
+        energyDrainPerSecond = plugin.getConfig().getDouble("shield.settings.energy-drain", 1.0);
+        rechargeRate = plugin.getConfig().getDouble("shield.settings.recharge-rate", 2.0);
         ConfigurationSection section = config.getConfigurationSection("modules");
         if (section != null) {
             for (String key : section.getKeys(false)) {
@@ -74,8 +74,8 @@ public class ShieldModuleManager {
 
     public void placeModule(Player player, Location location) {
         String id = "shield_" + System.currentTimeMillis();
-        double maxEnergy = plugin.getConfigManager().getShield().getDouble("settings.default-max-energy", 1000);
-        int radius = plugin.getConfigManager().getShield().getInt("settings.default-radius", 50);
+        double maxEnergy = plugin.getConfig().getDouble("shield.settings.default-max-energy", 1000);
+        int radius = plugin.getConfig().getInt("shield.settings.default-radius", 50);
         ShieldModule module = new ShieldModule(id, player.getUniqueId(), location, maxEnergy, radius);
         modules.put(id, module);
         save();
