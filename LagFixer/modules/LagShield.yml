@@ -1,0 +1,57 @@
+LagShield:
+  enabled: true
+  worlds: # Use '*' to enable for all worlds.
+    - '*'
+  values:
+    # TPS thresholds at which specific features will be disabled.
+    # Set to -1 to completely disable the check for a given feature.
+    tps_threshold:
+      entity_spawn: 19.0 # Disables entity spawning below this TPS.
+      tick_hopper: 18.5 # Disables hopper transfers below this TPS.
+      redstone: 18.5 # Disables redstone updates below this TPS.
+      projectiles: 16.5 # Cancels projectiles (arrows, snowballs, etc.) below this TPS.
+      leaves_decay: 18.5 # Stops leaf decay below this TPS.
+      mobai: 17.5 # Disables mob AI below this TPS.
+      liquid_flow: 18.0 # Stops liquid flow (water/lava) below this TPS.
+      explosions: 18.5 # Cancels explosions below this TPS.
+      fireworks: 19.0 # Cancels fireworks below this TPS.
+
+    # Dynamic player view distance adjustment.
+    # Key = TPS, Value = view-distance set at that TPS.
+    # Value is limited by the "view-distance" set in spigot.yml
+    # This option may cause the screen to flicker (chunk reload) for players when changing the view distance.
+    # Range: 2–32 chunks.
+    dynamic_view_distance:
+      enabled: true
+      tps_thresholds:
+      - 20.0:10
+      - 19.0:8
+      - 17.5:6
+      - 15.5:4
+      - 12.0:2
+
+    # Dynamic simulation distance adjustment.
+    # Controls how far from the player mechanics (mob AI, ticks, etc.) are active.
+    # Value is limited by the "simulation-distance" set in spigot.yml
+    # Also limited by the view distance to avoid simulating chunks that are not visible
+    dynamic_simulation_distance:
+      enabled: true
+      tps_thresholds:
+      - 20.0:6
+      - 18.5:5
+      - 17.0:4
+      - 15.0:3
+      - 12.0:2
+
+    # Dynamic random tick speed adjustment.
+    # Adjusts the "randomTickSpeed" gamerule dynamically based on current TPS.
+    # Affects random block updates such as crop growth, leaf decay, fire spread, and other random ticking behavior.
+    # Higher values increase world activity, while lower values reduce it to improve performance.
+    # Default Minecraft value is usually 3.
+    dynamic_tick_speed:
+      enabled: true
+      tps_thresholds:
+      - 20.0:3
+      - 18.5:2
+      - 16.0:1
+      - 13.0:0
