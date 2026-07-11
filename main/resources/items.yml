@@ -1,0 +1,91 @@
+# Предметы с CustomModelData и NBT (PersistentDataContainer)
+# Все цвета поддерживают & и HEX (&#RRGGBB)
+
+wand:
+  material: BLAZE_ROD
+  name: "&d&lZone Wand"
+  lore:
+    - ""
+    - "&7Инструмент выделения территории"
+    - ""
+    - "&fЛКМ &7- Первая точка"
+    - "&fПКМ &7- Вторая точка"
+    - ""
+    - "&dLunaMilitaryComplex"
+
+items:
+  military-component:
+    material: IRON_INGOT
+    name: "&c&lВоенный компонент"
+    lore:
+      - "&7Редкий компонент"
+      - "&7военного назначения"
+      - ""
+      - "&cLunaMilitaryComplex"
+    model-data: 1001
+
+  nav-module:
+    material: COMPASS
+    name: "&9&lНавигационный модуль"
+    lore:
+      - "&7Модуль наведения"
+      - "&7для ударов"
+      - ""
+      - "&9LunaMilitaryComplex"
+    model-data: 1002
+
+  energy-cell:
+    material: GLOWSTONE_DUST
+    name: "&e&lЭнергетическая ячейка"
+    lore:
+      - "&7Источник энергии"
+      - "&7для модулей"
+      - ""
+      - "&eLunaMilitaryComplex"
+    model-data: 1003
+
+  launch-core:
+    material: NETHER_STAR
+    name: "&5&lЯдро запуска"
+    lore:
+      - "&7Ядро системы"
+      - "&7стратегического удара"
+      - ""
+      - "&5LunaMilitaryComplex"
+    model-data: 1004
+
+  strike-code:
+    material: PAPER
+    name: "&4&lКод стратегического удара"
+    lore:
+      - "&7Одноразовый код"
+      - "&7для запуска удара"
+      - ""
+      - "&c⚠ Требуется ядро запуска"
+      - ""
+      - "&4LunaMilitaryComplex"
+    model-data: 1005
+
+  shield-module:
+    material: DIAMOND
+    name: "&b&lЗащитный модуль"
+    lore:
+      - "&7Защищает территорию"
+      - "&7от стратегических ударов"
+      - ""
+      - "&a▸ ПКМ для установки"
+      - ""
+      - "&bLunaMilitaryComplex"
+    model-data: 1006
+
+  terminal-block:
+    material: BEACON
+    name: "&d&lТерминал Военного комплекса"
+    lore:
+      - "&7Установите в зоне"
+      - "&7для доступа к терминалу"
+      - ""
+      - "&a▸ ПКМ для установки"
+      - ""
+      - "&dLunaMilitaryComplex"
+    model-data: 1007

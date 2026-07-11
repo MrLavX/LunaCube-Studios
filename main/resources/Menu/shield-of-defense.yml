@@ -1,0 +1,21 @@
+title: "&9Щит Защиты"
+size: 54
+items:
+  status:
+    slot: 20
+    material: LIME_WOOL
+    name: "&aСтатус"
+    lore:
+      - "&7Активен"
+  energy:
+    slot: 22
+    material: GLOWSTONE_DUST
+    name: "&eЭнергия"
+    lore:
+      - "&7Заряд"
+  logs:
+    slot: 24
+    material: BOOK
+    name: "&9Журнал"
+    lore:
+      - "&7События"

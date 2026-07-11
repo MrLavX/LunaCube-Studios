@@ -1,0 +1,15 @@
+title: "&cПодтверждение"
+size: 27
+items:
+  confirm:
+    slot: 12
+    material: LIME_WOOL
+    name: "&aПодтвердить"
+    lore:
+      - "&7Нажмите для подтверждения"
+  cancel:
+    slot: 14
+    material: RED_WOOL
+    name: "&cОтмена"
+    lore:
+      - "&7Нажмите для отмены"

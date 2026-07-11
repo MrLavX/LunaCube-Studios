@@ -1,0 +1,34 @@
+name: LunaMilitaryComplex
+version: 1.0.1
+main: akm.mrlavx.lunaMilitaryComplex.LunaMilitaryComplex
+api-version: '1.21'
+author: MrLavX
+softdepend: [DecentHolograms]
+
+commands:
+  lunamilitarycomplex:
+    description: Main command for LunaMilitaryComplex
+    usage: /lunamilitarycomplex <args>
+    aliases: [lmc, lunamc]
+
+permissions:
+  lunamilitarycomplex.zone:
+    description: Zone management
+    default: op
+  lunamilitarycomplex.admin:
+    description: Admin commands
+    default: op
+  lunamilitarycomplex.strike:
+    description: Launch strikes
+    default: op
+  lunamilitarycomplex.reload:
+    description: Reload plugin
+    default: op
+  lunamilitarycomplex.*:
+    description: All permissions
+    default: op
+    children:
+      lunamilitarycomplex.zone: true
+      lunamilitarycomplex.admin: true
+      lunamilitarycomplex.strike: true
+      lunamilitarycomplex.reload: true

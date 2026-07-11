@@ -1,0 +1,58 @@
+# Мобы Военного комплекса
+
+mobs:
+  guard:
+    name: "&7Охрана"
+    entity: ZOMBIE
+    health: 30
+    damage: 5
+    armor: 5
+    equipment:
+      helmet: IRON_HELMET
+      chestplate: IRON_CHESTPLATE
+      weapon: IRON_SWORD
+
+  soldier:
+    name: "&9Солдат"
+    entity: SKELETON
+    health: 40
+    damage: 8
+    armor: 8
+    equipment:
+      helmet: CHAINMAIL_HELMET
+      chestplate: CHAINMAIL_CHESTPLATE
+      weapon: BOW
+
+  heavy:
+    name: "&cТяжёлый солдат"
+    entity: ZOMBIE
+    health: 80
+    damage: 12
+    armor: 15
+    equipment:
+      helmet: DIAMOND_HELMET
+      chestplate: DIAMOND_CHESTPLATE
+      weapon: DIAMOND_SWORD
+
+  elite:
+    name: "&4&lЭлита"
+    entity: WITHER_SKELETON
+    health: 120
+    damage: 18
+    armor: 20
+    equipment:
+      helmet: NETHERITE_HELMET
+      chestplate: NETHERITE_CHESTPLATE
+      weapon: NETHERITE_SWORD
+
+# Волны (какие мобы спавнятся)
+wave-1:
+  mobs: [guard, guard, soldier]
+wave-2:
+  mobs: [guard, soldier, soldier, heavy]
+wave-3:
+  mobs: [soldier, soldier, heavy, heavy]
+wave-4:
+  mobs: [heavy, heavy, elite]
+wave-5:
+  mobs: [elite, elite, heavy, heavy]

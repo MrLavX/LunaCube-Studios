@@ -1,0 +1,68 @@
+# LunaMilitaryComplex v1.0.1 - Minecraft 1.21.11
+# Полная настройка Военного комплекса
+
+debug: false
+main-zone: ""
+
+# Расписание открытия
+schedule:
+  enabled: true
+  interval-minutes: 120
+  # Или конкретное время: "14:00", "20:00"
+  times: []
+
+# Настройки события
+event:
+  prep-time-seconds: 1800
+  open-duration: 300
+  rewards-duration: 300
+  waves: 5
+  wave-delay-seconds: 10
+
+# Захват
+capture:
+  radius: 5.0
+  time-seconds: 60
+  pause-on-leave: true
+  reset-on-leave: false
+
+# Отображение (actionbar / bossbar / message / none)
+# Каждый тип можно настроить отдельно!
+display:
+  zone:
+    display-type: "actionbar"
+  capture:
+    display-type: "actionbar"
+    bossbar:
+      title: "&a&lЗахват территории &7| &f%progress%/%max% &7(&f%percent%%&7)"
+      color: GREEN
+      style: SOLID
+  event:
+    display-type: "bossbar"
+    bossbar:
+      title: "&d&lВоенный комплекс &7| %phase% &7| %timer%с"
+      color: PURPLE
+      style: SOLID
+  strike:
+    display-type: "message"
+
+# Частицы
+particles:
+  selection:
+    color:
+      r: 255
+      g: 0
+      b: 255
+    size: 1.0
+  capture:
+    color:
+      r: 0
+      g: 255
+      b: 0
+
+# Звуки
+sounds:
+  countdown: BLOCK_NOTE_BLOCK_HAT
+  siren: BLOCK_NOTE_BLOCK_PLING
+  explosion: ENTITY_GENERIC_EXPLODE
+  boss-spawn: ENTITY_WITHER_SPAWN

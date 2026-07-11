@@ -1,0 +1,19 @@
+# Настройки стратегического удара
+
+settings:
+  max-strikes: 3
+  cooldown-minutes: 60
+  warning-seconds: 10
+  waves: 3
+  explosions-per-wave: 5
+  explosion-power: 4.0
+  damage-players: true
+  damage-blocks: true
+
+messages:
+  no-code:
+    - "&cУ вас нет кода удара!"
+  no-core:
+    - "&cТребуется ядро запуска!"
+  cooldown:
+    - "&cКулдаун: %minutes% мин."

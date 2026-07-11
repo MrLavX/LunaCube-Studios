@@ -1,0 +1,199 @@
+# Все сообщения поддерживают HEX (&#RRGGBB) и стандартные цвета (&)
+# Формат: list (список строк)
+# Placeholders: %zone%, %player%, %wave%, %timer%, %percent%, %status%, etc.
+
+# Типы отображения настраиваются в config.yml
+
+# Отображение при входе/выходе из зоны
+zone:
+  display:
+    in-zone:
+      - "&d&lВоенный комплекс &7| &fТерритория: &d%zone%"
+  help:
+    - ""
+    - "&d&lУправление зонами"
+    - ""
+    - " &f/lmc zone wand &7- Получить инструмент"
+    - " &f/lmc zone effect &7- Эффекты вкл/выкл"
+    - " &f/lmc zone create <название> &7- Создать"
+    - " &f/lmc zone delete <название> &7- Удалить"
+    - " &f/lmc zone toggle <название> &7- Вкл/Выкл"
+    - " &f/lmc zone list &7- Список"
+    - " &f/lmc zone info <название> &7- Инфо"
+    - " &f/lmc zone terminal &7- Установить терминал"
+    - " &f/lmc zone highlight <название> <минуты> &7- Подсветить зону"
+    - ""
+  wand:
+    given:
+      - "&aИнструмент выдан!"
+      - "&fЛКМ &7- Точка 1 | &fПКМ &7- Точка 2"
+  selection:
+    pos1-set:
+      - "&aТочка 1: &f%x%, %y%, %z%"
+      - "&7Размер: &f%sizex%x%sizey%x%sizez% &7(Объем: &f%volume%&7)"
+    pos2-set:
+      - "&aТочка 2: &f%x%, %y%, %z%"
+      - "&7Размер: &f%sizex%x%sizey%x%sizez% &7(Объем: &f%volume%&7)"
+    effects-toggled:
+      - "&aЭффекты %status%"
+  create:
+    usage:
+      - "&cИспользование: &f/lmc zone create <название>"
+    no-selection:
+      - "&cСначала выделите территорию!"
+      - "&7Используйте &f/lmc zone wand"
+    already-exists:
+      - "&cЗона '&f%zone%&c' уже существует!"
+    success:
+      - ""
+      - "&a&l✔ Зона создана!"
+      - " &fНазвание: &d%zone%"
+      - " &fРазмер: &7%sizex%&fx&7%sizey%&fx&7%sizez%"
+      - " &fОбъем: &7%volume% &fблоков"
+      - ""
+  delete:
+    usage:
+      - "&cИспользование: &f/lmc zone delete <название>"
+    success:
+      - "&aЗона '&f%zone%&a' удалена."
+  toggle:
+    usage:
+      - "&cИспользование: &f/lmc zone toggle <название>"
+    success:
+      - "&aЗона '&f%zone%&a' %status%"
+  list:
+    empty:
+      - "&cЗоны не найдены."
+    header:
+      - ""
+      - "&d&lСписок зон &7(%count%)"
+      - ""
+  info:
+    usage:
+      - "&cИспользование: &f/lmc zone info <название>"
+    header:
+      - ""
+      - "&d&lИнформация: &f%zone%"
+      - ""
+  not-found:
+    - "&cЗона '&f%zone%&c' не найдена."
+  enter:
+    - "&a▸ Вы вошли: &f%zone%"
+  leave:
+    - "&c▸ Вы покинули: &f%zone%"
+
+# === СОБЫТИЯ ===
+event:
+  preparing:
+    start:
+      - ""
+      - "&d&l⚡ Военный комплекс готовится к открытию!"
+      - ""
+    30min:
+      - "&d📡 &fДо открытия: &d30 минут"
+    10min:
+      - "&e⚠ &fДо открытия: &e10 минут"
+    5min:
+      - "&c🚨 &fДо открытия: &c5 минут"
+    1min:
+      - "&c🚨 &fДо открытия: &c1 минута"
+    30sec:
+      - "&c⚠ &fОткрытие через &c30 секунд"
+    countdown:
+      - "&4⚡ %seconds%..."
+  opened:
+    - ""
+    - "&a&l🔓 Военный комплекс ОТКРЫТ!"
+    - ""
+  wave:
+    spawn:
+      - "&e⚔ Волна %wave% атакует!"
+    complete:
+      - "&a✔ Волна %wave% уничтожена!"
+  boss:
+    start:
+      - ""
+      - "&4&l☠ Командир комплекса появился!"
+      - ""
+  capture:
+    start:
+      - ""
+      - "&a&l🏴 Начинается захват территории!"
+      - "&7Встаньте в круг и удерживайте позицию."
+      - ""
+    complete:
+      - ""
+      - "&a&l🏴 Военный комплекс захвачен!"
+      - "&7Победитель: &f%player%"
+      - ""
+  rewards:
+    given:
+      - "&aНаграды выданы игроку %player%"
+  stopped:
+    - "&cВоенный комплекс закрыт."
+
+# === ЗАХВАТ ===
+capture:
+  progress:
+    - "&aЗахват: %progress%/%max% (&f%percent%%&a)"
+  contested:
+    - "&cЗахват приостановлен — слишком много игроков!"
+  multiple:
+    - "&cНа точке несколько игроков!"
+
+# === УДАР ===
+strike:
+  warning:
+    - ""
+    - "&4&l⚠ СТРАТЕГИЧЕСКИЙ УДАР"
+    - "&7Цель: &f%target%"
+    - "&7Укрыться!"
+    - ""
+  countdown:
+    - "&4⚡ Удар через %seconds%..."
+  wave:
+    - "&c💥 Волна взрывов %wave%/3"
+  complete:
+    - "&4Удар завершён."
+
+# === ГЛОБАЛЬНЫЕ ===
+general:
+  no-permission:
+    - "&cУ вас нет прав."
+  player-only:
+    - "&cТолько для игроков."
+  unknown-command:
+    - "&cНеизвестная команда. &f/lmc help"
+  reload-success:
+    - "&aПлагин перезагружен!"
+  help:
+    - ""
+    - "&d&lLunaMilitaryComplex &fv1.0.1"
+    - ""
+    - " &7▸ &f/lmc zone wand &7- Инструмент выделения"
+    - " &7▸ &f/lmc zone create <название> &7- Создать зону"
+    - " &7▸ &f/lmc zone delete <название> &7- Удалить зону"
+    - " &7▸ &f/lmc zone toggle <название> &7- Вкл/Выкл зону"
+    - " &7▸ &f/lmc zone list &7- Список зон"
+    - " &7▸ &f/lmc zone info <название> &7- Инфо о зоне"
+    - " &7▸ &f/lmc zone terminal &7- Установить терминал"
+    - " &7▸ &f/lmc zone highlight <название> <мин> &7- Подсветить"
+    - ""
+    - " &7▸ &f/lmc start &7- Запустить комплекс"
+    - " &7▸ &f/lmc stop &7- Остановить комплекс"
+    - " &7▸ &f/lmc next &7- Следующее открытие"
+    - " &7▸ &f/lmc status &7- Статус"
+    - " &7▸ &f/lmc give <item> [player] &7- Выдать предмет"
+    - " &7▸ &f/lmc boss spawn &7- Заспавнить босса"
+    - " &7▸ &f/lmc strike <x> <y> <z> <world> &7- Удар"
+    - " &7▸ &f/lmc shield list/remove &7- Модули"
+    - " &7▸ &f/lmc reload &7- Перезагрузка"
+    - " &7▸ &f/lmc debug &7- Debug режим"
+    - ""
+
+# === АДМИН ===
+admin:
+  started:
+    - "&aКомплекс запущен."
+  stopped:
+    - "&cКомплекс остановлен."

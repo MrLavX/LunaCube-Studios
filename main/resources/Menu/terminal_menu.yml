@@ -1,0 +1,21 @@
+title: "&dТерминал"
+size: 45
+items:
+  coords:
+    slot: 20
+    material: COMPASS
+    name: "&9Ввод координат"
+    lore:
+      - "&7Введите цель для удара"
+  launch:
+    slot: 22
+    material: TNT
+    name: "&4Запуск удара"
+    lore:
+      - "&7Требуется код удара"
+  logs:
+    slot: 24
+    material: BOOK
+    name: "&eЖурнал"
+    lore:
+      - "&7История запусков"
