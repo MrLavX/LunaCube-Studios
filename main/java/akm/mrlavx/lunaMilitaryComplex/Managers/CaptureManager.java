@@ -123,6 +123,17 @@ public class CaptureManager {
                     .replace("%percent%", String.valueOf((progress * 100) / max))
             ));
             bar.setProgress(Math.max(0, Math.min(1, (double) progress / max)));
+        } else if (captureDisplay.equalsIgnoreCase("title") || captureDisplay.equalsIgnoreCase("subtitle")) {
+            String title = plugin.getConfig().getString("display.capture.title.text", "&a&lЗахват территории");
+            String subtitle = plugin.getConfig().getString("display.capture.title.subtitle", "&f%progress%/%max% &7(&f%percent%%&7)");
+            int fadeIn = plugin.getConfig().getInt("display.capture.title.fade-in", 5);
+            int stay = plugin.getConfig().getInt("display.capture.title.stay", 30);
+            int fadeOut = plugin.getConfig().getInt("display.capture.title.fade-out", 5);
+            p.sendTitle(
+                HexUtil.color(title.replace("%progress%", String.valueOf(progress)).replace("%max%", String.valueOf(max)).replace("%percent%", String.valueOf((progress * 100) / max))),
+                HexUtil.color(subtitle.replace("%progress%", String.valueOf(progress)).replace("%max%", String.valueOf(max)).replace("%percent%", String.valueOf((progress * 100) / max))),
+                fadeIn, stay, fadeOut
+            );
         } else {
             p.sendMessage(msg);
         }

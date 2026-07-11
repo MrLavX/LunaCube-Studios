@@ -11,6 +11,7 @@ main-zone: "" # Название главной зоны комплекса. Е�
 schedule:
   enabled: true # Включать ли автоматический запуск по расписанию.
   interval-minutes: 120 # Интервал между открытиями в минутах.
+  timezone: "Europe/Moscow" # Часовой пояс для фиксированных запусков.
   times: [] # Дополнительные фиксированные времена запуска, например: ["14:00", "20:00"].
 
 # Общая логика события.
@@ -20,6 +21,13 @@ event:
   rewards-duration: 300 # Сколько длится фаза выдачи наград.
   waves: 5 # Сколько волн мобов должно быть перед боссом.
   wave-delay-seconds: 10 # Пауза между волнами.
+  title:
+    enabled: true # Показывать ли title/subtitle при смене фаз.
+    fade-in: 10
+    stay: 60
+    fade-out: 10
+  access:
+    main-zone-bypass-permission: "lunamilitarycomplex.admin" # Кто может заходить в зону до открытия без наказания.
 
 # Захват территории после босса.
 capture:
@@ -27,6 +35,8 @@ capture:
   time-seconds: 60 # Время, которое нужно простоять в точке для победы.
   pause-on-leave: true # Приостанавливать захват, если игрок ушёл.
   reset-on-leave: false # Сбрасывать прогресс, если игрок ушёл.
+  display:
+    type: "actionbar" # actionbar, bossbar, message, title, subtitle
 
 # Босс комплекса и его BossBar.
 boss:
@@ -50,6 +60,8 @@ shield:
     recharge-rate: 2.0 # Сколько энергии добавляется за одно восстановление.
     default-max-energy: 1000 # Начальная ёмкость нового модуля.
     default-radius: 50 # Радиус защиты нового модуля.
+    min-energy-percent-to-block: 20 # Ниже этого процента модуль больше не блокирует удар.
+    block-cost: 100 # Сколько энергии тратится на блок одного удара.
 
 # Настройки стратегического удара.
 strike:
@@ -62,26 +74,61 @@ strike:
     explosion-power: 4.0 # Сила взрыва.
     damage-players: true # Наносить ли урон игрокам.
     damage-blocks: true # Разрушать ли блоки.
+    blocked-by-shield: true # Блокируется ли удар защитным модулем.
 
 # Настройки отображения на экране.
 # Доступные типы: actionbar, bossbar, message, none.
 display:
   zone:
-    display-type: "actionbar" # Уведомления при входе в зону.
+    display-type: "actionbar" # Уведомления при входе в зону: actionbar, bossbar, message, title, subtitle, none.
+    title:
+      text: "&d&l%zone%"
+      subtitle: "&7Военный комплекс"
+      fade-in: 10
+      stay: 40
+      fade-out: 10
   capture:
     display-type: "actionbar" # Отображение прогресса захвата.
+    title:
+      text: "&a&lЗахват территории"
+      subtitle: "&f%progress%/%max% &7(&f%percent%%&7)"
+      fade-in: 5
+      stay: 30
+      fade-out: 5
     bossbar:
       title: "&a&lЗахват территории &7| &f%progress%/%max% &7(&f%percent%%&7)" # Подсказка для BossBar.
       color: GREEN # Цвет BossBar захвата.
       style: SOLID # Стиль BossBar захвата.
   event:
     display-type: "bossbar" # Отображение таймера основного события.
+    title:
+      text: "&d&lВоенный комплекс"
+      subtitle: "&7%phase% &f%time%"
+      fade-in: 10
+      stay: 60
+      fade-out: 10
     bossbar:
       title: "&d&lВоенный комплекс &7| %phase% &7| %time%" # Поддерживает %phase% и %time%.
       color: PURPLE # Цвет BossBar события.
       style: SOLID # Стиль BossBar события.
   strike:
     display-type: "message" # Уведомления о запуске удара.
+    title:
+      text: "&4&lСТРАТЕГИЧЕСКИЙ УДАР"
+      subtitle: "&7Цель: &f%target%"
+      fade-in: 5
+      stay: 40
+      fade-out: 10
+
+terminal:
+  auto-place: true # Ставить терминал автоматически в центре зоны.
+  material: BEACON # Какой блок используется как терминал.
+  open-message: "&aТерминал открыт." # Сообщение при открытии.
+  blocked-message: "&cИвент ещё не запущен." # Сообщение если попытка до старта.
+
+worlds:
+  world:
+    name: "&aОсновной мир" # Как мир будет выглядеть в сообщениях и журналах.
 
 # Частицы
 particles:

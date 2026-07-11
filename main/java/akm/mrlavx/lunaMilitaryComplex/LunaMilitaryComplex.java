@@ -85,7 +85,7 @@ public final class LunaMilitaryComplex extends JavaPlugin {
         for (String f : new String[]{"messages.yml","items.yml","zones.yml","mobs.yml","data.yml","logs.yml"}) {
             saveResourceSafe(f);
         }
-        for (String m : new String[]{"Menu/confirm_menu.yml","Menu/terminal_menu.yml","Menu/shield-of-defense.yml"}) {
+        for (String m : new String[]{"Menu/confirm_menu.yml","Menu/terminal_menu.yml","Menu/shield-of-defense.yml","Menu/admin_menu.yml","Menu/log_menu.yml"}) {
             saveResourceSafe(m);
         }
     }
@@ -126,11 +126,13 @@ public final class LunaMilitaryComplex extends JavaPlugin {
         Bukkit.getScheduler().runTaskTimer(this, () -> {
             selectionManager.showSelectionEffects();
             zoneManager.checkPlayersInZones();
+        }, 0L, 5L);
+        Bukkit.getScheduler().runTaskTimer(this, () -> {
             eventManager.tick();
             captureManager.tick();
             shieldModuleManager.tick();
             effectManager.tick();
-        }, 0L, 5L);
+        }, 0L, 20L);
         Bukkit.getScheduler().runTaskTimer(this, () -> {
             dataManager.tick();
         }, 0L, 20L);
@@ -168,4 +170,8 @@ public final class LunaMilitaryComplex extends JavaPlugin {
     public StateManager getStateManager() { return stateManager; }
     public EffectManager getEffectManager() { return effectManager; }
     public LogGUI getLogGUI() { return logGUI; }
+    public TerminalGUI getTerminalGUI() { return terminalGUI; }
+    public ShieldGUI getShieldGUI() { return shieldGUI; }
+    public AdminGUI getAdminGUI() { return adminGUI; }
+    public ConfirmGUI getConfirmGUI() { return confirmGUI; }
 }

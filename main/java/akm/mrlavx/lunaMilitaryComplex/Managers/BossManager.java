@@ -36,7 +36,12 @@ public class BossManager {
     public void spawnBoss(Location location) {
         if (active) return;
         if (location == null || location.getWorld() == null) return;
-        EntityType et = EntityType.valueOf(bossData.entityType.toUpperCase());
+        EntityType et;
+        try {
+            et = EntityType.valueOf(bossData.entityType.toUpperCase());
+        } catch (IllegalArgumentException ex) {
+            et = EntityType.ZOMBIE;
+        }
         LivingEntity entity = (LivingEntity) location.getWorld().spawnEntity(location, et);
         if (entity instanceof Mob) {
             boss = (Mob) entity;

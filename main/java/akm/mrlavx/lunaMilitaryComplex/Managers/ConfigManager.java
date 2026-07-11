@@ -52,18 +52,7 @@ public class ConfigManager {
     }
 
     public List<String> getMessageList(String path, String... placeholders) {
-        List<String> list = getMessageList(path);
-        List<String> result = new ArrayList<>();
-        for (String line : list) {
-            String processed = line;
-            for (int j = 0; j < placeholders.length; j += 2) {
-                if (j + 1 < placeholders.length) {
-                    processed = processed.replace(placeholders[j], placeholders[j + 1]);
-                }
-            }
-            result.add(processed);
-        }
-        return result;
+        return HexUtil.replacePlaceholders(getMessageList(path), placeholders);
     }
 
     public FileConfiguration getItems() { return items; }
@@ -110,4 +99,25 @@ public class ConfigManager {
     public String getWandMaterial() { return items.getString("wand.material", "BLAZE_ROD"); }
     public String getWandName() { return HexUtil.color(items.getString("wand.name", "&d&lZone Wand")); }
     public List<String> getWandLore() { return HexUtil.color(items.getStringList("wand.lore")); }
+
+    public FileConfiguration getMenu(String name) {
+        File file = new File(plugin.getDataFolder(), "Menu/" + name + ".yml");
+        if (!file.exists()) {
+            plugin.saveResource("Menu/" + name + ".yml", false);
+        }
+        return YamlConfiguration.loadConfiguration(file);
+    }
+
+    public String getMenuTitle(String name, String fallback) {
+        return HexUtil.color(getMenu(name).getString("title", fallback));
+    }
+
+    public int getMenuSize(String name, int fallback) {
+        return getMenu(name).getInt("size", fallback);
+    }
+
+    public String getDisplayWorld(String worldName) {
+        String name = plugin.getConfig().getString("worlds." + worldName + ".name", worldName);
+        return HexUtil.color(name);
+    }
 }

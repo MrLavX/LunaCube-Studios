@@ -3,6 +3,7 @@ package akm.mrlavx.lunaMilitaryComplex.GUI;
 import akm.mrlavx.lunaMilitaryComplex.LunaMilitaryComplex;
 import akm.mrlavx.lunaMilitaryComplex.Utils.HexUtil;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -19,7 +20,8 @@ public class LogGUI implements Listener {
     public LogGUI(LunaMilitaryComplex plugin) { this.plugin = plugin; }
 
     public void open(Player player) {
-        Inventory inv = Bukkit.createInventory(null, 54, HexUtil.color("&9&lЖурнал событий"));
+        FileConfiguration menu = plugin.getConfigManager().getMenu("log_menu");
+        Inventory inv = Bukkit.createInventory(null, menu.getInt("size", 54), HexUtil.color(menu.getString("title", "&9&lЖурнал событий")));
         List<String> logs = plugin.getLogManager().getLogs(45);
         for (int i = 0; i < Math.min(logs.size(), 45); i++) {
             inv.setItem(i, createItem(Material.PAPER, logs.get(i)));
@@ -29,7 +31,8 @@ public class LogGUI implements Listener {
 
     @EventHandler
     public void onClick(InventoryClickEvent e) {
-        if (!e.getView().getTitle().contains("Журнал")) return;
+        FileConfiguration menu = plugin.getConfigManager().getMenu("log_menu");
+        if (!HexUtil.color(menu.getString("title", "&9&lЖурнал событий")).equals(e.getView().getTitle())) return;
         e.setCancelled(true);
     }
 

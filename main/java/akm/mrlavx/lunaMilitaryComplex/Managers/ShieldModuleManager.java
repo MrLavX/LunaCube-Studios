@@ -20,6 +20,8 @@ public class ShieldModuleManager {
     private FileConfiguration config;
     private double energyDrainPerSecond = 1.0;
     private double rechargeRate = 2.0;
+    private double minEnergyPercentToBlock = 20.0;
+    private double blockCost = 100.0;
 
     public ShieldModuleManager(LunaMilitaryComplex plugin) {
         this.plugin = plugin;
@@ -33,6 +35,8 @@ public class ShieldModuleManager {
         config = YamlConfiguration.loadConfiguration(file);
         energyDrainPerSecond = plugin.getConfig().getDouble("shield.settings.energy-drain", 1.0);
         rechargeRate = plugin.getConfig().getDouble("shield.settings.recharge-rate", 2.0);
+        minEnergyPercentToBlock = plugin.getConfig().getDouble("shield.settings.min-energy-percent-to-block", 20.0);
+        blockCost = plugin.getConfig().getDouble("shield.settings.block-cost", 100.0);
         ConfigurationSection section = config.getConfigurationSection("modules");
         if (section != null) {
             for (String key : section.getKeys(false)) {
@@ -96,7 +100,7 @@ public class ShieldModuleManager {
         for (ShieldModule m : modules.values()) {
             if (!m.isActive()) continue;
             if (m.getEnergy() > 0) {
-                m.setEnergy(m.getEnergy() - energyDrainPerSecond / 4);
+                m.setEnergy(m.getEnergy() - energyDrainPerSecond);
             } else {
                 m.setActive(false);
             }
@@ -118,6 +122,25 @@ public class ShieldModuleManager {
             if (!m.isActive() || m.getEnergy() <= 0) continue;
             if (m.getLocation().getWorld().equals(location.getWorld()) &&
                 m.getLocation().distance(location) <= m.getRadius()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean tryBlockStrike(Location location) {
+        if (location == null || location.getWorld() == null) return false;
+        for (ShieldModule m : modules.values()) {
+            if (!m.isActive() || m.getEnergy() <= 0) continue;
+            if (m.getLocation().getWorld().equals(location.getWorld()) &&
+                m.getLocation().distance(location) <= m.getRadius() &&
+                m.getEnergyPercent() >= minEnergyPercentToBlock) {
+                m.setEnergy(m.getEnergy() - blockCost);
+                if (m.getEnergy() <= 0) {
+                    m.setActive(false);
+                }
+                save();
+                plugin.getHologramManager().updateShieldHologram(m);
                 return true;
             }
         }

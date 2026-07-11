@@ -32,6 +32,7 @@ public class MainCommand implements CommandExecutor, TabCompleter {
             case "zone": handleZone(sender, args); break;
             case "start": handleStart(sender); break;
             case "stop": handleStop(sender); break;
+            case "stage": handleStage(sender, args); break;
             case "next": handleNext(sender); break;
             case "status": handleStatus(sender); break;
             case "give": handleGive(sender, args); break;
@@ -104,6 +105,21 @@ public class MainCommand implements CommandExecutor, TabCompleter {
         sendMessageList(sender, "admin.stopped");
     }
 
+    private void handleStage(CommandSender sender, String[] args) {
+        if (!checkPerm(sender, "lunamilitarycomplex.admin")) return;
+        if (args.length < 2) {
+            sender.sendMessage(HexUtil.color("&c/lmc stage <preparing|open|assault|boss|capture|rewards|finished>"));
+            return;
+        }
+        try {
+            MilitaryEvent stage = MilitaryEvent.valueOf(args[1].toUpperCase());
+            plugin.getEventManager().jumpToPhase(stage);
+            sendMessageList(sender, "general.stage-updated", "%stage%", stage.name());
+        } catch (IllegalArgumentException ex) {
+            sender.sendMessage(HexUtil.color("&cНеизвестная фаза."));
+        }
+    }
+
     private void handleNext(CommandSender sender) {
         if (!checkPerm(sender, "lunamilitarycomplex.admin")) return;
         long next = plugin.getEventManager().getNextOpenTime();
@@ -166,7 +182,7 @@ public class MainCommand implements CommandExecutor, TabCompleter {
             org.bukkit.World w = Bukkit.getWorld(args[4]);
             if (w == null) { p.sendMessage(HexUtil.color("&cМир не найден.")); return; }
             Location target = new Location(w, x, y, z);
-            plugin.getStrikeManager().launchStrike(p, target);
+            plugin.getStrikeManager().requestStrike(p, target);
         } catch (Exception e) { sender.sendMessage(HexUtil.color("&c/lmc strike <x> <y> <z> <world>")); }
     }
 
@@ -220,6 +236,10 @@ public class MainCommand implements CommandExecutor, TabCompleter {
         if (plugin.getZoneManager().zoneExists(name)) { sendMessageList(p, "zone.create.already-exists", "%zone%", name); return; }
         plugin.getZoneManager().createZone(name, s.getPos1(), s.getPos2());
         plugin.getSelectionManager().removeSelection(p);
+        Zone created = plugin.getZoneManager().getZone(name);
+        if (created != null && plugin.getConfig().getBoolean("terminal.auto-place", true)) {
+            plugin.getTerminalManager().placeTerminalBlock(created);
+        }
         sendMessageList(p, "zone.create.success", "%zone%", name, "%sizex%", String.valueOf(s.getSizeX()), "%sizey%", String.valueOf(s.getSizeY()), "%sizez%", String.valueOf(s.getSizeZ()), "%volume%", String.valueOf(s.getVolume()));
     }
 
@@ -248,7 +268,7 @@ public class MainCommand implements CommandExecutor, TabCompleter {
         Zone z = plugin.getZoneManager().getZone(name);
         if (z == null) { sendMessageList(p, "zone.not-found", "%zone%", name); return; }
         sendMessageList(p, "zone.info.header", "%zone%", z.getName());
-        p.sendMessage(HexUtil.color(" &7Мир: &f" + z.getWorldName()));
+        p.sendMessage(HexUtil.color(" &7Мир: &f" + plugin.getConfigManager().getDisplayWorld(z.getWorldName()) + " &7(" + z.getWorldName() + ")"));
         p.sendMessage(HexUtil.color(" &7Координаты: &f" + z.getMinX() + ", " + z.getMinY() + ", " + z.getMinZ() + " &7-> &f" + z.getMaxX() + ", " + z.getMaxY() + ", " + z.getMaxZ()));
         p.sendMessage(HexUtil.color(" &7Статус: " + (z.isEnabled() ? "&aВключена" : "&cВыключена")));
         if (z.getTerminalBlock() != null) {
@@ -277,13 +297,14 @@ public class MainCommand implements CommandExecutor, TabCompleter {
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         List<String> completions = new ArrayList<>();
         if (args.length == 1) {
-            completions.addAll(Arrays.asList("zone","start","stop","next","status","give","boss","strike","shield","reload","debug","help"));
+            completions.addAll(Arrays.asList("zone","start","stop","stage","next","status","give","boss","strike","shield","reload","debug","help"));
         } else if (args.length == 2) {
             switch(args[0].toLowerCase()) {
                 case "zone": completions.addAll(Arrays.asList("wand","effect","create","delete","toggle","list","info","terminal","highlight")); break;
                 case "give": completions.addAll(Arrays.asList("component","module","cell","core","strikecode","shield")); break;
                 case "boss": completions.add("spawn"); break;
                 case "shield": completions.addAll(Arrays.asList("list","remove")); break;
+                case "stage": completions.addAll(Arrays.asList("preparing","open","assault","boss","capture","rewards","finished")); break;
             }
         } else if (args.length == 3 && args[0].equalsIgnoreCase("zone")) {
             String action = args[1].toLowerCase();

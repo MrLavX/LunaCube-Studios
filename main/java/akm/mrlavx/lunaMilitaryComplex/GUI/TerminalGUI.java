@@ -3,7 +3,7 @@ package akm.mrlavx.lunaMilitaryComplex.GUI;
 import akm.mrlavx.lunaMilitaryComplex.LunaMilitaryComplex;
 import akm.mrlavx.lunaMilitaryComplex.Utils.HexUtil;
 import org.bukkit.Bukkit;
-import java.util.Arrays;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -18,30 +18,39 @@ public class TerminalGUI implements Listener {
     public TerminalGUI(LunaMilitaryComplex plugin) { this.plugin = plugin; }
 
     public void open(Player player) {
-        Inventory inv = Bukkit.createInventory(null, 45, HexUtil.color("&d&lТерминал Военного комплекса"));
-        inv.setItem(20, createItem(Material.COMPASS, "&9&lВвод координат", "&7Нажмите для ввода цели"));
-        inv.setItem(22, createItem(Material.TNT, "&4&lЗапуск удара", "&7Требуется код удара"));
-        inv.setItem(24, createItem(Material.BOOK, "&e&lЖурнал ударов", "&7История запусков"));
+        FileConfiguration menu = plugin.getConfigManager().getMenu("terminal_menu");
+        Inventory inv = Bukkit.createInventory(null, menu.getInt("size", 45), HexUtil.color(menu.getString("title", "&d&lТерминал")));
+        setItem(inv, menu, "coords");
+        setItem(inv, menu, "launch");
+        setItem(inv, menu, "logs");
         player.openInventory(inv);
     }
 
     @EventHandler
     public void onClick(InventoryClickEvent e) {
-        if (!e.getView().getTitle().contains("Терминал")) return;
+        FileConfiguration menu = plugin.getConfigManager().getMenu("terminal_menu");
+        if (!HexUtil.color(menu.getString("title", "&d&lТерминал")).equals(e.getView().getTitle())) return;
         e.setCancelled(true);
         if (!(e.getWhoClicked() instanceof Player)) return;
         Player p = (Player) e.getWhoClicked();
-        if (e.getCurrentItem() == null) return;
-        String name = e.getCurrentItem().getItemMeta().getDisplayName();
-        if (name.contains("Ввод координат")) {
+        if (e.getSlot() == menu.getInt("items.coords.slot", 20)) {
             p.sendMessage("Введите координаты: /lmc strike <x> <y> <z>");
             p.closeInventory();
-        } else if (name.contains("Запуск удара")) {
+        } else if (e.getSlot() == menu.getInt("items.launch.slot", 22)) {
             p.sendMessage("Используйте: /lmc strike <x> <y> <z>");
             p.closeInventory();
-        } else if (name.contains("Журнал")) {
+        } else if (e.getSlot() == menu.getInt("items.logs.slot", 24)) {
             plugin.getLogGUI().open(p);
         }
+    }
+
+    private void setItem(Inventory inv, FileConfiguration menu, String key) {
+        String base = "items." + key + ".";
+        Material material = Material.matchMaterial(menu.getString(base + "material", "STONE"));
+        if (material == null) material = Material.STONE;
+        inv.setItem(menu.getInt(base + "slot", 0), createItem(material,
+            menu.getString(base + "name", "&f" + key),
+            menu.getStringList(base + "lore").toArray(new String[0])));
     }
 
     private ItemStack createItem(Material mat, String name, String... lore) {

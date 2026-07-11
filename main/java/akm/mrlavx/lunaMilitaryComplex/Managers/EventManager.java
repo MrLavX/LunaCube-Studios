@@ -10,11 +10,12 @@ import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
 
 public class EventManager {
     private final LunaMilitaryComplex plugin;
@@ -22,6 +23,7 @@ public class EventManager {
     private int timer = 0;
     private int wave = 0;
     private boolean running = false;
+    private boolean awaitingWave = false;
     private long nextOpenTime = 0;
     private int prepSeconds = 0;
     private MilitaryEvent currentPhase = MilitaryEvent.CLOSED;
@@ -34,6 +36,9 @@ public class EventManager {
 
     public void reload() {
         nextOpenTime = plugin.getDataManager().getNextOpenTime();
+        if (nextOpenTime == 0 && plugin.getConfig().getBoolean("schedule.enabled", true)) {
+            scheduleNextOpen();
+        }
     }
 
     public void tick() {
@@ -56,6 +61,9 @@ public class EventManager {
     }
 
     private void checkSchedule() {
+        if (!plugin.getConfig().getBoolean("schedule.enabled", true)) {
+            return;
+        }
         if (System.currentTimeMillis() >= nextOpenTime && nextOpenTime > 0) {
             startEvent();
         }
@@ -64,22 +72,24 @@ public class EventManager {
     public void startEvent() {
         if (running) return;
         running = true;
-        currentPhase = MilitaryEvent.PREPARING;
         prepSeconds = plugin.getConfig().getInt("event.prep-time-seconds", 1800);
         timer = prepSeconds;
-        plugin.getStateManager().setState(MilitaryEvent.PREPARING);
+        plugin.getTerminalManager().setTerminalOpen(false);
+        setPhase(MilitaryEvent.PREPARING);
         broadcast("event.preparing.start");
         plugin.getLogManager().log("EVENT", "Event started - preparing phase");
         createEventBar();
+        announcePhase("event.phase.preparing", HexUtil.formatDuration(timer));
     }
 
     public void stopEvent() {
         running = false;
-        currentPhase = MilitaryEvent.CLOSED;
-        plugin.getStateManager().setState(MilitaryEvent.CLOSED);
+        setPhase(MilitaryEvent.CLOSED);
         plugin.getMobManager().clearMobs();
         plugin.getBossManager().despawnBoss();
         plugin.getCaptureManager().reset();
+        plugin.getHologramManager().removeAll();
+        awaitingWave = false;
         if (eventBar != null) { eventBar.removeAll(); eventBar = null; }
         broadcast("event.stopped");
         plugin.getLogManager().log("EVENT", "Event stopped");
@@ -98,15 +108,18 @@ public class EventManager {
             Zone zone = getMainZone();
             if (zone != null) {
                 Location center = getZoneCenter(zone);
-                plugin.getEffectManager().playCountdownEffect(center, remaining);
+                if (center != null) {
+                    plugin.getEffectManager().playCountdownEffect(center, remaining);
+                }
             }
         }
         else if (remaining <= 0) {
-            currentPhase = MilitaryEvent.OPEN;
+            setPhase(MilitaryEvent.OPEN);
             timer = plugin.getConfig().getInt("event.open-duration", 300);
-            plugin.getStateManager().setState(MilitaryEvent.OPEN);
+            plugin.getTerminalManager().setTerminalOpen(true);
             broadcast("event.opened");
             plugin.getLogManager().log("EVENT", "Complex opened");
+            announcePhase("event.phase.open", HexUtil.formatDuration(timer));
         }
     }
 
@@ -118,24 +131,30 @@ public class EventManager {
     }
 
     private void tickAssault() {
+        if (awaitingWave) return;
         if (!plugin.getMobManager().hasAliveMobs()) {
             wave++;
             int maxWaves = plugin.getConfig().getInt("event.waves", 5);
             if (wave > maxWaves) {
-                currentPhase = MilitaryEvent.BOSS;
+                setPhase(MilitaryEvent.BOSS);
                 broadcast("event.boss.start");
                 spawnBoss();
+                announcePhase("event.phase.boss", "");
             } else {
                 broadcast("event.wave.complete", "%wave%", String.valueOf(wave));
                 timer = plugin.getConfig().getInt("event.wave-delay-seconds", 10);
-                Bukkit.getScheduler().runTaskLater(plugin, this::spawnWave, timer * 20L);
+                awaitingWave = true;
+                Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                    awaitingWave = false;
+                    spawnWave();
+                }, timer * 20L);
             }
         }
     }
 
     private void tickBoss() {
         if (!plugin.getBossManager().isActive()) {
-            currentPhase = MilitaryEvent.CAPTURE;
+            setPhase(MilitaryEvent.CAPTURE);
             startCapture();
         }
     }
@@ -144,8 +163,9 @@ public class EventManager {
 
     private void tickRewards() {
         if (timer <= 0) {
-            currentPhase = MilitaryEvent.FINISHED;
+            setPhase(MilitaryEvent.FINISHED);
             timer = 60;
+            announcePhase("event.phase.rewards", HexUtil.formatDuration(timer));
         }
     }
 
@@ -156,23 +176,23 @@ public class EventManager {
     }
 
     public void startCapture() {
-        currentPhase = MilitaryEvent.CAPTURE;
-        plugin.getStateManager().setState(MilitaryEvent.CAPTURE);
+        setPhase(MilitaryEvent.CAPTURE);
         Location center = getZoneCenter(getMainZone());
         if (center != null) {
             plugin.getCaptureManager().startCapture(center);
         }
         broadcast("event.capture.start");
         plugin.getLogManager().log("EVENT", "Capture phase started");
+        announcePhase("event.phase.capture", "");
     }
 
     public void onCaptureComplete(Player winner) {
-        currentPhase = MilitaryEvent.REWARDS;
+        setPhase(MilitaryEvent.REWARDS);
         timer = plugin.getConfig().getInt("event.rewards-duration", 300);
-        plugin.getStateManager().setState(MilitaryEvent.REWARDS);
         broadcast("event.capture.complete", "%player%", winner.getName());
         plugin.getLogManager().log("CAPTURE", "Captured by " + winner.getName());
         giveRewards(winner);
+        announcePhase("event.phase.rewards", HexUtil.formatDuration(timer));
     }
 
     private void giveRewards(Player winner) {
@@ -192,6 +212,7 @@ public class EventManager {
             mobTypes = new ArrayList<>(configMobs);
         }
         Location center = getZoneCenter(zone);
+        if (center == null) return;
         for (String type : mobTypes) {
             Location loc = center.clone().add((Math.random()-0.5)*20, 0, (Math.random()-0.5)*20);
             loc.setY(center.getWorld().getHighestBlockYAt(loc));
@@ -207,8 +228,14 @@ public class EventManager {
     }
 
     private void scheduleNextOpen() {
-        int interval = plugin.getConfig().getInt("schedule.interval-minutes", 120);
-        nextOpenTime = System.currentTimeMillis() + (interval * 60L * 1000L);
+        if (!plugin.getConfig().getBoolean("schedule.enabled", true)) {
+            nextOpenTime = 0;
+            plugin.getDataManager().setNextOpenTime(0);
+            return;
+        }
+        List<String> times = plugin.getConfig().getStringList("schedule.times");
+        String timezone = plugin.getConfig().getString("schedule.timezone", "Europe/Moscow");
+        nextOpenTime = computeNextOpenTime(times, timezone);
         plugin.getDataManager().setNextOpenTime(nextOpenTime);
         plugin.getLogManager().log("SCHEDULE", "Next open at " + new java.util.Date(nextOpenTime));
     }
@@ -250,11 +277,107 @@ public class EventManager {
         };
     }
 
+    public boolean canEnterMainZone() {
+        return currentPhase == MilitaryEvent.OPEN || currentPhase == MilitaryEvent.ASSAULT
+            || currentPhase == MilitaryEvent.BOSS || currentPhase == MilitaryEvent.CAPTURE
+            || currentPhase == MilitaryEvent.REWARDS;
+    }
+
+    public void setPhase(MilitaryEvent phase) {
+        currentPhase = phase;
+        plugin.getStateManager().setState(phase);
+        plugin.getTerminalManager().setTerminalOpen(phase == MilitaryEvent.OPEN || phase == MilitaryEvent.ASSAULT || phase == MilitaryEvent.BOSS || phase == MilitaryEvent.CAPTURE || phase == MilitaryEvent.REWARDS);
+    }
+
+    public void jumpToPhase(MilitaryEvent phase) {
+        if (phase == MilitaryEvent.CLOSED) {
+            stopEvent();
+            return;
+        }
+        running = true;
+        setPhase(phase);
+        switch (phase) {
+            case PREPARING -> {
+                timer = plugin.getConfig().getInt("event.prep-time-seconds", 1800);
+                createEventBar();
+                broadcast("event.preparing.start");
+                announcePhase("event.phase.preparing", HexUtil.formatDuration(timer));
+            }
+            case OPEN -> {
+                timer = plugin.getConfig().getInt("event.open-duration", 300);
+                createEventBar();
+                broadcast("event.opened");
+                announcePhase("event.phase.open", HexUtil.formatDuration(timer));
+            }
+            case ASSAULT -> {
+                broadcast("event.phase.assault");
+                startAssault();
+            }
+            case BOSS -> {
+                broadcast("event.boss.start");
+                spawnBoss();
+                announcePhase("event.phase.boss", "");
+            }
+            case CAPTURE -> {
+                startCapture();
+            }
+            case REWARDS -> {
+                timer = plugin.getConfig().getInt("event.rewards-duration", 300);
+                broadcast("event.phase.rewards", "%time%", HexUtil.formatDuration(timer));
+                announcePhase("event.phase.rewards", HexUtil.formatDuration(timer));
+            }
+            case FINISHED -> timer = 60;
+            case CLOSED -> stopEvent();
+        }
+    }
+
+    private void announcePhase(String path, String time) {
+        if (!plugin.getConfig().getBoolean("event.title.enabled", true)) return;
+        String title = plugin.getConfig().getString("display.event.title.text", "&d&lВоенный комплекс");
+        String subtitle = plugin.getConfig().getString("display.event.title.subtitle", "&7%phase% &f%time%");
+        String phase = getPhaseName();
+        int fadeIn = plugin.getConfig().getInt("event.title.fade-in", 10);
+        int stay = plugin.getConfig().getInt("event.title.stay", 60);
+        int fadeOut = plugin.getConfig().getInt("event.title.fade-out", 10);
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            player.sendTitle(
+                HexUtil.color(title.replace("%phase%", phase).replace("%time%", time)),
+                HexUtil.color(subtitle.replace("%phase%", phase).replace("%time%", time)),
+                fadeIn, stay, fadeOut
+            );
+        }
+    }
+
+    private long computeNextOpenTime(List<String> times, String timezoneId) {
+        ZoneId zoneId;
+        try {
+            zoneId = ZoneId.of(timezoneId);
+        } catch (Exception ignored) {
+            zoneId = ZoneId.systemDefault();
+        }
+        ZonedDateTime now = ZonedDateTime.now(zoneId);
+        ZonedDateTime candidate = now.plusMinutes(Math.max(1, plugin.getConfig().getInt("schedule.interval-minutes", 120)));
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+        for (String raw : times) {
+            try {
+                LocalTime localTime = LocalTime.parse(raw, formatter);
+                ZonedDateTime next = now.withHour(localTime.getHour()).withMinute(localTime.getMinute()).withSecond(0).withNano(0);
+                if (next.isBefore(now)) {
+                    next = next.plusDays(1);
+                }
+                if (candidate == null || next.isBefore(candidate)) {
+                    candidate = next;
+                }
+            } catch (Exception ignored) {}
+        }
+        return candidate.toInstant().toEpochMilli();
+    }
+
     private void startAssault() {
-        currentPhase = MilitaryEvent.ASSAULT;
-        plugin.getStateManager().setState(MilitaryEvent.ASSAULT);
+        setPhase(MilitaryEvent.ASSAULT);
         wave = 0;
         timer = 0;
+        awaitingWave = false;
         spawnWave();
     }
 
@@ -286,6 +409,7 @@ public class EventManager {
     private Location getZoneCenter(Zone zone) {
         if (zone == null) return null;
         org.bukkit.World w = Bukkit.getWorld(zone.getWorldName());
+        if (w == null) return null;
         double x = (zone.getMinX() + zone.getMaxX()) / 2.0;
         double z = (zone.getMinZ() + zone.getMaxZ()) / 2.0;
         double y = w.getHighestBlockYAt((int)x, (int)z);
@@ -297,4 +421,5 @@ public class EventManager {
     public int getTimer() { return timer; }
     public int getWave() { return wave; }
     public long getNextOpenTime() { return nextOpenTime; }
+    public void addViewer(Player player) { if (eventBar != null && player != null) eventBar.addPlayer(player); }
 }

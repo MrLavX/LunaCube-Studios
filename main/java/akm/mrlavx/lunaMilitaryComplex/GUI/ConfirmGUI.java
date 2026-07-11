@@ -3,7 +3,7 @@ package akm.mrlavx.lunaMilitaryComplex.GUI;
 import akm.mrlavx.lunaMilitaryComplex.LunaMilitaryComplex;
 import akm.mrlavx.lunaMilitaryComplex.Utils.HexUtil;
 import org.bukkit.Bukkit;
-import java.util.Arrays;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -23,26 +23,34 @@ public class ConfirmGUI implements Listener {
     public ConfirmGUI(LunaMilitaryComplex plugin) { this.plugin = plugin; }
 
     public void open(Player player, String action, Runnable onConfirm) {
-        Inventory inv = Bukkit.createInventory(null, 27, HexUtil.color("&c&lПодтверждение: " + action));
-        inv.setItem(12, createItem(Material.LIME_WOOL, "&a&lПодтвердить", "&7Нажмите для подтверждения"));
-        inv.setItem(14, createItem(Material.RED_WOOL, "&c&lОтмена", "&7Нажмите для отмены"));
+        FileConfiguration menu = plugin.getConfigManager().getMenu("confirm_menu");
+        Inventory inv = Bukkit.createInventory(null, menu.getInt("size", 27), HexUtil.color(menu.getString("title", "&c&lПодтверждение")));
+        inv.setItem(menu.getInt("items.confirm.slot", 12), createItem(
+            resolveMaterial(menu.getString("items.confirm.material", "LIME_WOOL")),
+            menu.getString("items.confirm.name", "&a&lПодтвердить").replace("%action%", action),
+            menu.getStringList("items.confirm.lore").stream().map(line -> line.replace("%action%", action)).toArray(String[]::new)
+        ));
+        inv.setItem(menu.getInt("items.cancel.slot", 14), createItem(
+            resolveMaterial(menu.getString("items.cancel.material", "RED_WOOL")),
+            menu.getString("items.cancel.name", "&c&lОтмена").replace("%action%", action),
+            menu.getStringList("items.cancel.lore").stream().map(line -> line.replace("%action%", action)).toArray(String[]::new)
+        ));
         confirmations.put(player.getUniqueId(), onConfirm);
         player.openInventory(inv);
     }
 
     @EventHandler
     public void onClick(InventoryClickEvent e) {
-        if (!e.getView().getTitle().contains("Подтверждение")) return;
+        FileConfiguration menu = plugin.getConfigManager().getMenu("confirm_menu");
+        if (!HexUtil.color(menu.getString("title", "&c&lПодтверждение")).equals(e.getView().getTitle())) return;
         e.setCancelled(true);
         if (!(e.getWhoClicked() instanceof Player)) return;
         Player player = (Player) e.getWhoClicked();
-        if (e.getCurrentItem() == null || e.getCurrentItem().getItemMeta() == null) return;
-        String name = e.getCurrentItem().getItemMeta().getDisplayName();
         Runnable action = confirmations.remove(player.getUniqueId());
-        if (name.contains("Подтвердить")) {
+        if (e.getSlot() == menu.getInt("items.confirm.slot", 12)) {
             player.closeInventory();
             if (action != null) action.run();
-        } else if (name.contains("Отмена")) {
+        } else if (e.getSlot() == menu.getInt("items.cancel.slot", 14)) {
             player.closeInventory();
         }
     }
@@ -58,5 +66,10 @@ public class ConfirmGUI implements Listener {
         }
         item.setItemMeta(meta);
         return item;
+    }
+
+    private Material resolveMaterial(String name) {
+        Material mat = Material.matchMaterial(name);
+        return mat != null ? mat : Material.STONE;
     }
 }

@@ -13,7 +13,11 @@ public class InventoryListener implements Listener {
     @EventHandler
     public void onClick(InventoryClickEvent e) {
         String title = e.getView().getTitle();
-        if (title.contains("Терминал") || title.contains("Защитный модуль") || title.contains("Админ") || title.contains("Журнал") || title.contains("Подтверждение")) {
+        if (title.equals(plugin.getConfigManager().getMenuTitle("terminal_menu", "&d&lТерминал")) ||
+            title.equals(plugin.getConfigManager().getMenuTitle("shield-of-defense", "&b&lЗащитный модуль")) ||
+            title.equals(plugin.getConfigManager().getMenuTitle("admin_menu", "&c&lАдмин панель")) ||
+            title.equals(plugin.getConfigManager().getMenuTitle("log_menu", "&9&lЖурнал событий")) ||
+            title.equals(plugin.getConfigManager().getMenuTitle("confirm_menu", "&c&lПодтверждение"))) {
             e.setCancelled(true);
         }
     }
@@ -21,7 +25,11 @@ public class InventoryListener implements Listener {
     @EventHandler
     public void onDrag(InventoryDragEvent e) {
         String title = e.getView().getTitle();
-        if (title.contains("Терминал") || title.contains("Защитный модуль") || title.contains("Админ") || title.contains("Журнал") || title.contains("Подтверждение")) {
+        if (title.equals(plugin.getConfigManager().getMenuTitle("terminal_menu", "&d&lТерминал")) ||
+            title.equals(plugin.getConfigManager().getMenuTitle("shield-of-defense", "&b&lЗащитный модуль")) ||
+            title.equals(plugin.getConfigManager().getMenuTitle("admin_menu", "&c&lАдмин панель")) ||
+            title.equals(plugin.getConfigManager().getMenuTitle("log_menu", "&9&lЖурнал событий")) ||
+            title.equals(plugin.getConfigManager().getMenuTitle("confirm_menu", "&c&lПодтверждение"))) {
             e.setCancelled(true);
         }
     }

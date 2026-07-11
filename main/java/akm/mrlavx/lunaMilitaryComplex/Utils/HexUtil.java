@@ -31,6 +31,25 @@ public final class HexUtil {
         return result;
     }
 
+    public static String replacePlaceholders(String text, String... placeholders) {
+        if (text == null || text.isEmpty() || placeholders == null) {
+            return color(text);
+        }
+        String result = text;
+        for (int i = 0; i + 1 < placeholders.length; i += 2) {
+            result = result.replace(placeholders[i], placeholders[i + 1]);
+        }
+        return color(result);
+    }
+
+    public static List<String> replacePlaceholders(List<String> lines, String... placeholders) {
+        List<String> result = new ArrayList<>();
+        for (String line : lines) {
+            result.add(replacePlaceholders(line, placeholders));
+        }
+        return result;
+    }
+
     public static String formatDuration(long seconds) {
         if (seconds < 0) seconds = 0;
         if (seconds < 60) {

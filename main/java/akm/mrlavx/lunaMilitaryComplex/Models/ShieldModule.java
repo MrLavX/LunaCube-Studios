@@ -18,10 +18,10 @@ public class ShieldModule {
     }
     public UUID getOwner(){return owner;} public void setOwner(UUID v){owner=v;}
     public Location getLocation(){return location;} public void setLocation(Location v){location=v;}
-    public double getEnergy(){return energy;} public void setEnergy(double v){energy=Math.min(v,maxEnergy);}
+    public double getEnergy(){return energy;} public void setEnergy(double v){energy=Math.max(0, Math.min(v,maxEnergy));}
     public double getMaxEnergy(){return maxEnergy;} public void setMaxEnergy(double v){maxEnergy=v;}
     public int getRadius(){return radius;} public void setRadius(int v){radius=v;}
     public boolean isActive(){return active;} public void setActive(boolean v){active=v;}
     public String getId(){return id;}
-    public double getEnergyPercent(){return (energy/maxEnergy)*100;}
+    public double getEnergyPercent(){return maxEnergy <= 0 ? 0 : (energy/maxEnergy)*100;}
 }

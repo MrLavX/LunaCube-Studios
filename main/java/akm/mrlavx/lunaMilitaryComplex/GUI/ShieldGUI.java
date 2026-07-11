@@ -4,7 +4,7 @@ import akm.mrlavx.lunaMilitaryComplex.LunaMilitaryComplex;
 import akm.mrlavx.lunaMilitaryComplex.Models.ShieldModule;
 import akm.mrlavx.lunaMilitaryComplex.Utils.HexUtil;
 import org.bukkit.Bukkit;
-import java.util.Arrays;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -19,17 +19,28 @@ public class ShieldGUI implements Listener {
     public ShieldGUI(LunaMilitaryComplex plugin) { this.plugin = plugin; }
 
     public void open(Player player) {
-        Inventory inv = Bukkit.createInventory(null, 27, HexUtil.color("&b&lЗащитный модуль"));
-        inv.setItem(11, createItem(Material.LIME_WOOL, "&a&lСтатус", "&7Активен"));
-        inv.setItem(13, createItem(Material.GLOWSTONE_DUST, "&e&lЭнергия", "&7Заряд модуля"));
-        inv.setItem(15, createItem(Material.BOOK, "&9&lЖурнал", "&7История событий"));
+        FileConfiguration menu = plugin.getConfigManager().getMenu("shield-of-defense");
+        Inventory inv = Bukkit.createInventory(null, menu.getInt("size", 27), HexUtil.color(menu.getString("title", "&b&lЗащитный модуль")));
+        setItem(inv, menu, "status");
+        setItem(inv, menu, "energy");
+        setItem(inv, menu, "logs");
         player.openInventory(inv);
     }
 
     @EventHandler
     public void onClick(InventoryClickEvent e) {
-        if (!e.getView().getTitle().contains("Защитный модуль")) return;
+        FileConfiguration menu = plugin.getConfigManager().getMenu("shield-of-defense");
+        if (!HexUtil.color(menu.getString("title", "&b&lЗащитный модуль")).equals(e.getView().getTitle())) return;
         e.setCancelled(true);
+    }
+
+    private void setItem(Inventory inv, FileConfiguration menu, String key) {
+        String base = "items." + key + ".";
+        Material material = Material.matchMaterial(menu.getString(base + "material", "STONE"));
+        if (material == null) material = Material.STONE;
+        inv.setItem(menu.getInt(base + "slot", 0), createItem(material,
+            menu.getString(base + "name", "&f" + key),
+            menu.getStringList(base + "lore").toArray(new String[0])));
     }
 
     private ItemStack createItem(Material mat, String name, String... lore) {

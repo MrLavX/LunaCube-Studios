@@ -8,6 +8,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
@@ -15,6 +16,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,11 +28,12 @@ public class ZoneManager {
     private final Map<UUID, String> playerZones = new HashMap<>();
     private final Map<UUID, BossBar> playerBossBars = new HashMap<>();
     private final Map<String, Long> zoneEffects = new HashMap<>(); // zone name -> effect end time
+    private final Map<UUID, Long> blockedEntries = new HashMap<>();
     private File zonesFile;
     private FileConfiguration zonesConfig;
 
     public ZoneManager(LunaMilitaryComplex plugin) { this.plugin = plugin; loadZones(); }
-    public void reload() { zones.clear(); playerZones.clear(); playerBossBars.values().forEach(BossBar::removeAll); playerBossBars.clear(); zoneEffects.clear(); loadZones(); }
+    public void reload() { zones.clear(); playerZones.clear(); playerBossBars.values().forEach(BossBar::removeAll); playerBossBars.clear(); zoneEffects.clear(); blockedEntries.clear(); loadZones(); }
 
     private void loadZones() {
         zonesFile = new File(plugin.getDataFolder(), "zones.yml");
@@ -59,7 +62,13 @@ public class ZoneManager {
         Zone z = new Zone(name, pos1.getWorld(), pos1.getBlockX(), pos1.getBlockY(), pos1.getBlockZ(), pos2.getBlockX(), pos2.getBlockY(), pos2.getBlockZ());
         zones.put(name.toLowerCase(), z); saveZones();
     }
-    public void deleteZone(String name) { zones.remove(name.toLowerCase()); saveZones(); }
+    public void deleteZone(String name) {
+        Zone zone = zones.remove(name.toLowerCase());
+        if (zone != null && zone.getTerminalBlock() != null && zone.getTerminalBlock().getBlock() != null) {
+            zone.getTerminalBlock().getBlock().setType(org.bukkit.Material.AIR);
+        }
+        saveZones();
+    }
     public Zone getZone(String name) { return zones.get(name.toLowerCase()); }
     public Collection<Zone> getAllZones() { return zones.values(); }
     public boolean zoneExists(String name) { return zones.containsKey(name.toLowerCase()); }
@@ -106,6 +115,7 @@ public class ZoneManager {
                 removeBossBar(p); playerZones.remove(p.getUniqueId());
             }
             if (current != null) updateDisplay(p, current);
+            if (current != null) enforceEventAccess(p, current);
         }
     }
 
@@ -153,6 +163,41 @@ public class ZoneManager {
         }
     }
 
+    private void enforceEventAccess(Player p, Zone z) {
+        String mainZone = plugin.getConfig().getString("main-zone", "");
+        if (mainZone.isEmpty() || !z.getName().equalsIgnoreCase(mainZone)) {
+            return;
+        }
+        if (plugin.getEventManager().canEnterMainZone()) {
+            return;
+        }
+        if (p.hasPermission(plugin.getConfig().getString("event.access.main-zone-bypass-permission", "lunamilitarycomplex.admin"))) {
+            return;
+        }
+        long now = System.currentTimeMillis();
+        Long last = blockedEntries.get(p.getUniqueId());
+        if (last != null && now - last < 5000L) {
+            return;
+        }
+        blockedEntries.put(p.getUniqueId(), now);
+        Location thrown = p.getLocation().clone().add((Math.random() - 0.5) * 12.0, 50.0, (Math.random() - 0.5) * 12.0);
+        if (thrown.getWorld() != null) {
+            p.teleport(thrown);
+        }
+        Vector throwVector = new Vector((Math.random() - 0.5) * 4.0, 1.6 + Math.random(), (Math.random() - 0.5) * 4.0);
+        p.setVelocity(throwVector);
+        p.addPotionEffect(new org.bukkit.potion.PotionEffect(org.bukkit.potion.PotionEffectType.SLOW_FALLING, 80, 1));
+        p.addPotionEffect(new org.bukkit.potion.PotionEffect(org.bukkit.potion.PotionEffectType.BLINDNESS, 40, 0));
+        p.playSound(p.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f, 0.8f);
+        String remaining = HexUtil.formatDuration(Math.max(0L, (plugin.getEventManager().getNextOpenTime() - System.currentTimeMillis()) / 1000L));
+        for (String line : plugin.getConfigManager().getMessageList("event.preparing.blocked-entry", "%time%", remaining)) {
+            p.sendMessage(line);
+        }
+        String title = plugin.getConfigManager().getMessage("event.preparing.blocked-entry-title").replace("%time%", remaining);
+        String subtitle = plugin.getConfigManager().getMessage("event.preparing.blocked-entry-subtitle").replace("%time%", remaining);
+        p.sendTitle(HexUtil.color(title), HexUtil.color(subtitle), 10, 50, 10);
+    }
+
     private void updateDisplay(Player p, Zone z) {
         String message = plugin.getConfigManager().getMessage("zone.display.in-zone").replace("%zone%", z.getName());
         message = HexUtil.color(message);
@@ -169,6 +214,17 @@ public class ZoneManager {
             }
         } else if (displayType.equalsIgnoreCase("actionbar")) {
             sendActionBar(p, message);
+        } else if (displayType.equalsIgnoreCase("title") || displayType.equalsIgnoreCase("subtitle")) {
+            String title = plugin.getConfig().getString("display.zone.title.text", "&d&l%zone%");
+            String subtitle = plugin.getConfig().getString("display.zone.title.subtitle", "&7Военный комплекс");
+            int fadeIn = plugin.getConfig().getInt("display.zone.title.fade-in", 10);
+            int stay = plugin.getConfig().getInt("display.zone.title.stay", 40);
+            int fadeOut = plugin.getConfig().getInt("display.zone.title.fade-out", 10);
+            p.sendTitle(
+                HexUtil.color(title.replace("%zone%", z.getName())),
+                HexUtil.color(subtitle.replace("%zone%", z.getName())),
+                fadeIn, stay, fadeOut
+            );
         } else {
             // message type - don't spam chat, only send once
         }
@@ -191,5 +247,5 @@ public class ZoneManager {
     private BarStyle getBarStyle(String s) { try { return BarStyle.valueOf(s.toUpperCase()); } catch (Exception e) { return BarStyle.SOLID; } }
     public Map<UUID, String> getPlayerZones() { return playerZones; }
     public Map<String, Long> getZoneEffects() { return zoneEffects; }
-    public void removePlayer(Player p) { removeBossBar(p); playerZones.remove(p.getUniqueId()); }
+    public void removePlayer(Player p) { removeBossBar(p); playerZones.remove(p.getUniqueId()); blockedEntries.remove(p.getUniqueId()); }
 }

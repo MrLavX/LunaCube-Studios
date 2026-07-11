@@ -7,9 +7,11 @@ items:
     name: "&aПодтвердить"
     lore:
       - "&7Нажмите для подтверждения"
+      - "&7Действие: &f%action%"
   cancel:
     slot: 14
     material: RED_WOOL
     name: "&cОтмена"
     lore:
       - "&7Нажмите для отмены"
+      - "&7Действие: &f%action%"

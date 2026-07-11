@@ -1,0 +1,27 @@
+title: "&c&lАдмин панель"
+size: 27
+items:
+  start:
+    slot: 10
+    material: GREEN_WOOL
+    name: "&a&lСтарт"
+    lore:
+      - "&7Запустить комплекс"
+  stop:
+    slot: 12
+    material: RED_WOOL
+    name: "&c&lСтоп"
+    lore:
+      - "&7Остановить комплекс"
+  status:
+    slot: 14
+    material: CLOCK
+    name: "&e&lСтатус"
+    lore:
+      - "&7Текущий статус"
+  logs:
+    slot: 16
+    material: BOOK
+    name: "&9&lЖурнал"
+    lore:
+      - "&7Логи событий"
