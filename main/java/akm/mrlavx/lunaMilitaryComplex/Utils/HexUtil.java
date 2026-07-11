@@ -30,4 +30,30 @@ public final class HexUtil {
         }
         return result;
     }
+
+    public static String formatDuration(long seconds) {
+        if (seconds < 0) seconds = 0;
+        if (seconds < 60) {
+            return seconds + " " + plural(seconds, "секунда", "секунды", "секунд");
+        }
+        if (seconds < 3600) {
+            long minutes = seconds / 60;
+            return minutes + " " + plural(minutes, "минута", "минуты", "минут");
+        }
+        if (seconds < 86400) {
+            long hours = seconds / 3600;
+            return hours + " " + plural(hours, "час", "часа", "часов");
+        }
+        long days = seconds / 86400;
+        return days + " " + plural(days, "день", "дня", "дней");
+    }
+
+    private static String plural(long value, String one, String few, String many) {
+        long mod100 = value % 100;
+        long mod10 = value % 10;
+        if (mod100 >= 11 && mod100 <= 14) return many;
+        if (mod10 == 1) return one;
+        if (mod10 >= 2 && mod10 <= 4) return few;
+        return many;
+    }
 }

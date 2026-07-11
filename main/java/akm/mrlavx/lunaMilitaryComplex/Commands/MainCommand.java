@@ -86,7 +86,7 @@ public class MainCommand implements CommandExecutor, TabCompleter {
         try {
             int minutes = Integer.parseInt(minutesStr);
             plugin.getZoneManager().enableZoneEffect(zoneName, minutes);
-            p.sendMessage(HexUtil.color("&aЭффекты зоны '&f" + zoneName + "&a' включены на &f" + minutes + " &aминут."));
+            p.sendMessage(HexUtil.color("&aЭффекты зоны '&f" + zoneName + "&a' включены на &f" + HexUtil.formatDuration(minutes * 60L) + "&a."));
         } catch (NumberFormatException e) {
             p.sendMessage(HexUtil.color("&cУкажите число минут."));
         }
@@ -109,8 +109,7 @@ public class MainCommand implements CommandExecutor, TabCompleter {
         long next = plugin.getEventManager().getNextOpenTime();
         if (next > 0) {
             long diff = next - System.currentTimeMillis();
-            long minutes = diff / 60000;
-            sender.sendMessage(HexUtil.color("&aСледующее открытие через: &f" + minutes + " &aмин."));
+            sender.sendMessage(HexUtil.color("&aСледующее открытие через: &f" + HexUtil.formatDuration(diff / 1000) + "&a."));
         } else {
             sender.sendMessage(HexUtil.color("&cРасписание не установлено."));
         }
@@ -121,7 +120,7 @@ public class MainCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage(HexUtil.color("&d&lСтатус комплекса:"));
         sender.sendMessage(HexUtil.color(" &7Состояние: &f" + state.name()));
         sender.sendMessage(HexUtil.color(" &7Фаза: &f" + plugin.getEventManager().getCurrentPhase().name()));
-        sender.sendMessage(HexUtil.color(" &7Таймер: &f" + plugin.getEventManager().getTimer() + "с"));
+        sender.sendMessage(HexUtil.color(" &7Таймер: &f" + HexUtil.formatDuration(plugin.getEventManager().getTimer())));
         sender.sendMessage(HexUtil.color(" &7Волна: &f" + plugin.getEventManager().getWave()));
         sender.sendMessage(HexUtil.color(" &7Зон: &f" + plugin.getZoneManager().getAllZones().size()));
     }

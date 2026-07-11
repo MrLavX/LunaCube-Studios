@@ -1,85 +1,87 @@
 # LunaMilitaryComplex v1.0.1 - Minecraft 1.21.11
-# Полная настройка Военного комплекса
+# Этот файл можно читать без знания кода:
+# - здесь лежат все основные игровые настройки;
+# - все числа подписаны простыми комментариями;
+# - единый таймер %time% автоматически выбирает единицы времени.
 
-debug: false
-main-zone: ""
+debug: false # Если true — в консоль пишется больше технических сообщений.
+main-zone: "" # Название главной зоны комплекса. Если пусто — берётся первая доступная зона.
 
-# Расписание открытия
+# Расписание открытия комплекса.
 schedule:
-  enabled: true
-  interval-minutes: 120
-  # Или конкретное время: "14:00", "20:00"
-  times: []
+  enabled: true # Включать ли автоматический запуск по расписанию.
+  interval-minutes: 120 # Интервал между открытиями в минутах.
+  times: [] # Дополнительные фиксированные времена запуска, например: ["14:00", "20:00"].
 
-# Настройки события
+# Общая логика события.
 event:
-  prep-time-seconds: 1800
-  open-duration: 300
-  rewards-duration: 300
-  waves: 5
-  wave-delay-seconds: 10
+  prep-time-seconds: 1800 # Подготовка перед открытием в секундах.
+  open-duration: 300 # Сколько комплекс остаётся открытым до штурма.
+  rewards-duration: 300 # Сколько длится фаза выдачи наград.
+  waves: 5 # Сколько волн мобов должно быть перед боссом.
+  wave-delay-seconds: 10 # Пауза между волнами.
 
-# Захват
+# Захват территории после босса.
 capture:
-  radius: 5.0
-  time-seconds: 60
-  pause-on-leave: true
-  reset-on-leave: false
+  radius: 5.0 # Радиус точки захвата от центра.
+  time-seconds: 60 # Время, которое нужно простоять в точке для победы.
+  pause-on-leave: true # Приостанавливать захват, если игрок ушёл.
+  reset-on-leave: false # Сбрасывать прогресс, если игрок ушёл.
 
-# Босс
+# Босс комплекса и его BossBar.
 boss:
-  name: "&4&lКомандир комплекса"
-  entity: ZOMBIE
-  health: 500
-  armor: 20
-  damage: 15
-  stages: 3
-  spawn-effect: "EXPLOSION"
-  death-effect: "LIGHTNING"
+  name: "&4&lКомандир комплекса" # Отображаемое имя босса.
+  entity: ZOMBIE # Тип сущности Bukkit, которая будет заспавнена.
+  health: 500 # Максимальное здоровье.
+  armor: 20 # Броня босса.
+  damage: 15 # Урон босса.
+  stages: 3 # Количество стадий босса.
+  spawn-effect: "EXPLOSION" # Эффект при спавне.
+  death-effect: "LIGHTNING" # Эффект при смерти.
   bossbar:
-    title: "&4&l%name% &7| &c%health%/%max-health% ❤"
-    color: RED
-    style: SOLID
+    title: "&4&l%name% &7| &c%health%/%max-health% ❤" # Текст BossBar. Поддерживает %name%, %health%, %max-health%.
+    color: RED # Цвет BossBar.
+    style: SOLID # Стиль BossBar.
 
-# Модуль защиты
+# Настройки защитного модуля.
 shield:
   settings:
-    energy-drain: 1.0
-    recharge-rate: 2.0
-    default-max-energy: 1000
-    default-radius: 50
+    energy-drain: 1.0 # Сколько энергии уходит каждую секунду.
+    recharge-rate: 2.0 # Сколько энергии добавляется за одно восстановление.
+    default-max-energy: 1000 # Начальная ёмкость нового модуля.
+    default-radius: 50 # Радиус защиты нового модуля.
 
-# Удар
+# Настройки стратегического удара.
 strike:
   settings:
-    max-strikes: 3
-    cooldown-minutes: 60
-    warning-seconds: 10
-    waves: 3
-    explosions-per-wave: 5
-    explosion-power: 4.0
-    damage-players: true
-    damage-blocks: true
+    max-strikes: 3 # Сколько ударов можно запустить всего.
+    cooldown-minutes: 60 # Кулдаун между ударами для одного игрока.
+    warning-seconds: 10 # Сколько секунд показывать предупреждение.
+    waves: 3 # Сколько волн взрывов будет в ударе.
+    explosions-per-wave: 5 # Сколько взрывов в каждой волне.
+    explosion-power: 4.0 # Сила взрыва.
+    damage-players: true # Наносить ли урон игрокам.
+    damage-blocks: true # Разрушать ли блоки.
 
-# Отображение (actionbar / bossbar / message / none)
-# Каждый тип можно настроить отдельно!
+# Настройки отображения на экране.
+# Доступные типы: actionbar, bossbar, message, none.
 display:
   zone:
-    display-type: "actionbar"
+    display-type: "actionbar" # Уведомления при входе в зону.
   capture:
-    display-type: "actionbar"
+    display-type: "actionbar" # Отображение прогресса захвата.
     bossbar:
-      title: "&a&lЗахват территории &7| &f%progress%/%max% &7(&f%percent%%&7)"
-      color: GREEN
-      style: SOLID
+      title: "&a&lЗахват территории &7| &f%progress%/%max% &7(&f%percent%%&7)" # Подсказка для BossBar.
+      color: GREEN # Цвет BossBar захвата.
+      style: SOLID # Стиль BossBar захвата.
   event:
-    display-type: "bossbar"
+    display-type: "bossbar" # Отображение таймера основного события.
     bossbar:
-      title: "&d&lВоенный комплекс &7| %phase% &7| %timer%с"
-      color: PURPLE
-      style: SOLID
+      title: "&d&lВоенный комплекс &7| %phase% &7| %time%" # Поддерживает %phase% и %time%.
+      color: PURPLE # Цвет BossBar события.
+      style: SOLID # Стиль BossBar события.
   strike:
-    display-type: "message"
+    display-type: "message" # Уведомления о запуске удара.
 
 # Частицы
 particles:

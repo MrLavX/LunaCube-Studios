@@ -67,7 +67,7 @@ public class StrikeManager {
                     cancel();
                     return;
                 }
-                broadcast("strike.countdown", "%seconds%", String.valueOf(countdown));
+                broadcast("strike.countdown", "%time%", akm.mrlavx.lunaMilitaryComplex.Utils.HexUtil.formatDuration(countdown));
                 countdown--;
             }
         }.runTaskTimer(plugin, 0L, 20L);

@@ -1,8 +1,7 @@
 # Все сообщения поддерживают HEX (&#RRGGBB) и стандартные цвета (&)
 # Формат: list (список строк)
-# Placeholders: %zone%, %player%, %wave%, %timer%, %percent%, %status%, etc.
-
-# Типы отображения настраиваются в config.yml
+# Placeholders: %zone%, %player%, %wave%, %time%, %percent%, %status%, etc.
+# %time% автоматически превращается в "1 секунда", "2 минуты", "3 часа", "1 день" и т.д.
 
 # Отображение при входе/выходе из зоны
 zone:
@@ -100,7 +99,7 @@ event:
     30sec:
       - "&c⚠ &fОткрытие через &c30 секунд"
     countdown:
-      - "&4⚡ %seconds%..."
+      - "&4⚡ %time%..."
   opened:
     - ""
     - "&a&l🔓 Военный комплекс ОТКРЫТ!"
@@ -150,7 +149,7 @@ strike:
     - "&7Укрыться!"
     - ""
   countdown:
-    - "&4⚡ Удар через %seconds%..."
+    - "&4⚡ Удар через %time%..."
   wave:
     - "&c💥 Волна взрывов %wave%/3"
   complete:

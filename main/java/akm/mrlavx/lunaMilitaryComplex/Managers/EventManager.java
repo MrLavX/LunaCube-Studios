@@ -94,7 +94,7 @@ public class EventManager {
         else if (remaining == 60) broadcast("event.preparing.1min");
         else if (remaining == 30) broadcast("event.preparing.30sec");
         else if (remaining <= 10 && remaining > 0) {
-            broadcast("event.preparing.countdown", "%seconds%", String.valueOf(remaining));
+            broadcast("event.preparing.countdown", "%time%", HexUtil.formatDuration(remaining));
             Zone zone = getMainZone();
             if (zone != null) {
                 Location center = getZoneCenter(zone);
@@ -231,7 +231,7 @@ public class EventManager {
         if (eventBar == null || !running) return;
         String title = plugin.getConfigManager().getBossBarTitle("display.event", "&d&lВоенный комплекс")
             .replace("%phase%", getPhaseName())
-            .replace("%timer%", String.valueOf(timer));
+            .replace("%time%", HexUtil.formatDuration(timer));
         eventBar.setTitle(HexUtil.color(title));
         double max = getPhaseMaxTime();
         eventBar.setProgress(max > 0 ? Math.max(0, Math.min(1, (double)timer / max)) : 1);
